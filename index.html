@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chefinho: O Shih Tzu Inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="font-weight: 600; font-size: 1.2rem; color: var(--accent-color);">Chefinho</div>
+        </div>
+
+        <button class="new-chat-btn" id="new-chat-btn">
+            <span class="material-symbols-outlined">add</span>
+            <span data-i18n="new_chat">Novo chat</span>
+        </button>
+
+        <div class="history-list" id="history-list">
+            <!-- Items injected by JS -->
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="footer-link" id="settings-trigger">
+                <span class="material-symbols-outlined">settings</span>
+                <span data-i18n="settings">Configurações</span>
+            </a>
+            <div id="auth-section">
+                <!-- Create Profile Link -->
+                <a href="#" class="footer-link" id="setup-profile-trigger">
+                    <span class="material-symbols-outlined">person_add</span>
+                    <span data-i18n="create_profile">Criar Perfil</span>
+                </a>
+
+                <!-- User name display area -->
+                <div class="user-status-card hidden" id="sidebar-user-card">
+                    <span class="material-symbols-outlined" style="font-size: 1.2rem;">account_circle</span>
+                    <span id="sidebar-username" style="font-weight: 500;">Humano</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <button class="menu-btn" id="toggle-sidebar" aria-label="Menu" style="margin-right: 15px;">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="model-selector" id="model-selector-btn">
+                <span id="model-name-display">Chefinho (Carregando...)</span>
+                <span class="material-symbols-outlined" style="font-size: 1rem;">expand_more</span>
+
+                <!-- Dropdown Menu -->
+                <div class="model-dropdown" id="model-dropdown">
+                    <div class="model-option" data-model="google/gemini-2.0-flash-exp:free"
+                        data-name="Gemini 2.0 Flash">
+                        <span>⚡ Gemini 2.0 Flash (Não funciona)</span>
+                    </div>
+                    <div class="model-option" data-model="amazon/nova-lite-v1" data-name="Amazon Nova Lite">
+                        <span>☁️ Amazon Nova Lite (Melhor opção)</span>
+                    </div>
+                    <div class="model-option" data-model="meta-llama/llama-3.2-3b-instruct:free"
+                        data-name="Llama 3.2 3B">
+                        <span>🦙 Llama 3.2 3B (Tá falhando)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="user-profile hidden" id="user-profile-icon">
+                U
+            </div>
+        </header>
+
+        <div class="chat-area" id="chat-area">
+            <!-- Welcome Screen (Only visible when chat is empty) -->
+            <!-- Welcome Screen (Only visible when chat is empty) -->
+            <div class="welcome-screen" id="welcome-screen">
+                <h1 class="welcome-title" data-i18n="welcome_title">Oi pessoa aí do outro lado da tela</h1>
+                <h2 class="welcome-subtitle" data-i18n="welcome_subtitle">Como eu posso te ajudar?</h2>
+                <div class="suggestion-cards">
+                    <div class="card" onclick="setPrompt('Como ensinar um Shih Tzu a sentar?')">
+                        <p data-i18n="suggestion_1">Como ensinar um Shih Tzu a sentar?</p>
+                    </div>
+                    <div class="card" onclick="setPrompt('Por que cachorros uivam?')">
+                        <p data-i18n="suggestion_2">Por que cachorros uivam?</p>
+                    </div>
+                    <div class="card" onclick="setPrompt('Me conte uma piada de cachorro.')">
+                        <p data-i18n="suggestion_3">Me conte uma piada de cachorro.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <button class="send-btn" id="mic-btn">
+                <span class="material-symbols-outlined">mic</span>
+            </button>
+            <input type="text" id="user-input" placeholder="Digite uma mensagem para o Chefinho..."
+                data-i18n-placeholder="input_placeholder" autocomplete="off">
+            <button class="send-btn" id="send-btn" aria-label="Enviar">
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Settings Modal (TABBED LAYOUT) -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="settings_title">Configurações</h2>
+                <button class="close-modal" id="close-settings">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="modal-body layout-split">
+                <!-- Sidebar Nav -->
+                <div class="settings-nav">
+                    <button class="nav-btn active" data-tab="profile">
+                        <span class="material-symbols-outlined">person</span> <span
+                            data-i18n="nav_profile">Perfil</span>
+                    </button>
+                    <button class="nav-btn" data-tab="system">
+                        <span class="material-symbols-outlined">tune</span> <span data-i18n="nav_system">Sistema</span>
+                    </button>
+                    <button class="nav-btn" data-tab="languages">
+                        <span class="material-symbols-outlined">translate</span> <span
+                            data-i18n="nav_languages">Línguas</span>
+                    </button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="settings-content">
+
+                    <!-- TAB: PERFIL -->
+                    <div class="tab-pane active" id="tab-profile">
+                        <div class="setting-group" style="border:none;">
+                            <h3 data-i18n="profile_section">Seu Perfil</h3>
+                            <div class="input-group">
+                                <label for="profile-name" data-i18n="name_label">Como devo te chamar?</label>
+                                <input type="text" id="profile-name" placeholder="Seu nome (ex: Tech Dog)">
+                            </div>
+
+                            <div class="input-group">
+                                <label data-i18n="avatar_label">Escolha seu Avatar:</label>
+                                <div class="avatar-grid" id="avatar-grid">
+                                    <div class="avatar-option selected" data-value="👤">👤</div>
+                                    <div class="avatar-option" data-value="👩">👩</div>
+                                    <div class="avatar-option" data-value="👨">👨</div>
+                                    <div class="avatar-option" data-value="🧑">🧑</div>
+                                    <div class="avatar-option" data-value="👽">👽</div>
+                                    <div class="avatar-option" data-value="🤖">🤖</div>
+                                    <div class="avatar-option" data-value="🦊">🦊</div>
+                                    <div class="avatar-option" data-value="🐱">🐱</div>
+                                </div>
+                            </div>
+
+                            <button class="login-btn-modal" id="save-profile-btn" style="width: 100%; margin-top:20px;">
+                                <span data-i18n="save_btn">Salvar Perfil</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB: SISTEMA -->
+                    <div class="tab-pane" id="tab-system">
+                        <div class="setting-group" style="border:none;">
+                            <h3 data-i18n="persona_title">Personalidade & IA</h3>
+
+                            <div class="input-group">
+                                <label data-i18n="persona_label">Personalidade do Chefinho:</label>
+                                <br>
+                                <select id="personality-select" class="styled-select" style="margin-top:5px;">
+                                    <option value="original">🐶 Original (Fofo & Chefe)</option>
+                                    <option value="gamer">🎮 Gamer (Gírias & Deltarune)</option>
+                                    <option value="sarcastic">😒 Sarcástico (Debochado)</option>
+                                    <option value="coach">💪 Coach (Motivacional)</option>
+                                    <option value="custom">✨ Personalizar</option>
+                                </select>
+                            </div>
+
+                            <!-- Custom Personality Textarea (Hidden by Default) -->
+                            <div class="input-group" id="custom-personality-group"
+                                style="display: none; margin-top: 15px;">
+                                <label data-i18n="custom_persona_label">Descreva como o Chefinho deve se
+                                    comportar:</label>
+                                <textarea id="custom-personality-text" class="custom-persona-textarea"
+                                    placeholder="Ex: Você é um filósofo canino que responde com citações profundas..."
+                                    rows="4"></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label data-i18n="color_label">Cor do Tema:</label>
+                                <div class="color-options">
+                                    <div class="color-circle selected" data-color="#E5C255"
+                                        style="background: #E5C255;"></div> <!-- Gold -->
+                                    <div class="color-circle" data-color="#4facfe" style="background: #4facfe;"></div>
+                                    <!-- Blue -->
+                                    <div class="color-circle" data-color="#ff6b6b" style="background: #ff6b6b;"></div>
+                                    <!-- Red -->
+                                    <div class="color-circle" data-color="#43e97b" style="background: #43e97b;"></div>
+                                    <!-- Green -->
+                                    <div class="color-circle" data-color="#a18cd1" style="background: #a18cd1;"></div>
+                                    <!-- Purple -->
+                                </div>
+                            </div>
+
+                            <div class="setting-item"
+                                style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                                <span data-i18n="theme_dark">Tema Escuro</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="theme-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: LANGUAGES -->
+                <div class="tab-pane" id="tab-languages">
+                    <div class="setting-group" style="border:none;">
+                        <h3 data-i18n="languages_title">Idiomas & Regiões</h3>
+                        <p style="color:var(--text-secondary); margin-bottom:20px; font-size:0.9rem;"
+                            data-i18n="languages_desc">Em qual língua devo latir?</p>
+
+                        <div class="language-grid-new">
+                            <div class="lang-card selected" data-lang="pt-br">
+                                <div class="lang-flag">🇧🇷</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Português</span>
+                                    <span class="lang-region">Brasil</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="en">
+                                <div class="lang-flag">🇺🇸</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">English</span>
+                                    <span class="lang-region">United States</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="es">
+                                <div class="lang-flag">🇪🇸</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Español</span>
+                                    <span class="lang-region">España</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="ru">
+                                <div class="lang-flag">🇷🇺</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Русский</span>
+                                    <span class="lang-region">Россия</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="pl">
+                                <div class="lang-flag">🇵🇱</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Polski</span>
+                                    <span class="lang-region">Polska</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="pt-pt">
+                                <div class="lang-flag">🇵🇹</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Português</span>
+                                    <span class="lang-region">Portugal</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="ja">
+                                <div class="lang-flag">🇯🇵</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">日本語</span>
+                                    <span class="lang-region">日本</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+
+                            <div class="lang-card" data-lang="de">
+                                <div class="lang-flag">🇩🇪</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">Deutsch</span>
+                                    <span class="lang-region">Deutschland</span>
+                                </div>
+                                <div class="lang-check">✓</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
